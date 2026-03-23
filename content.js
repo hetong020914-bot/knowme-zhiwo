@@ -12,8 +12,8 @@ const PLATFORM_CONFIG = [
   { id: "gemini", label: "Gemini", hosts: ["gemini.google.com"] },
   { id: "doubao", label: "豆包", hosts: ["www.doubao.com", "doubao.com"] },
   { id: "kimi", label: "Kimi", hosts: ["kimi.moonshot.cn", "www.kimi.com"] },
-  { id: "minimax", label: "MiniMax", hosts: ["chat.minimax.io", "www.minimax.io"] },
-  { id: "qianwen", label: "千问", hosts: ["tongyi.aliyun.com"] },
+  { id: "minimax", label: "MiniMax", hosts: ["chat.minimax.io", "agent.minimax.io", "www.minimax.io"] },
+  { id: "qianwen", label: "千问", hosts: ["tongyi.aliyun.com", "www.qianwen.com"] },
   { id: "zhipu", label: "智谱清言", hosts: ["chatglm.cn"] },
   { id: "deepseek", label: "DeepSeek", hosts: ["chat.deepseek.com", "www.deepseek.com"] }
 ];
@@ -115,6 +115,12 @@ const SITE_CONFIG = {
     responseSelectors: [".assistant-message", ".message-content", "article"],
     enableInlineCapture: false
   },
+  "agent.minimax.io": {
+    platformId: "minimax",
+    inputSelectors: ['div[contenteditable="true"]', "textarea"],
+    responseSelectors: [".assistant-message", ".message-content", "article"],
+    enableInlineCapture: false
+  },
   "www.minimax.io": {
     platformId: "minimax",
     inputSelectors: ['div[contenteditable="true"]', "textarea"],
@@ -122,6 +128,12 @@ const SITE_CONFIG = {
     enableInlineCapture: false
   },
   "tongyi.aliyun.com": {
+    platformId: "qianwen",
+    inputSelectors: ['div[contenteditable="true"]', "textarea"],
+    responseSelectors: [".answer-content", ".markdown-body", ".assistant-message", "article"],
+    enableInlineCapture: false
+  },
+  "www.qianwen.com": {
     platformId: "qianwen",
     inputSelectors: ['div[contenteditable="true"]', "textarea"],
     responseSelectors: [".answer-content", ".markdown-body", ".assistant-message", "article"],

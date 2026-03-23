@@ -20,8 +20,10 @@
     "https://kimi.moonshot.cn/*",
     "https://www.kimi.com/*",
     "https://chat.minimax.io/*",
+    "https://agent.minimax.io/*",
     "https://www.minimax.io/*",
     "https://tongyi.aliyun.com/*",
+    "https://www.qianwen.com/*",
     "https://chatglm.cn/*",
     "https://chat.deepseek.com/*",
     "https://www.deepseek.com/*"
@@ -52,8 +54,10 @@
         "https://kimi.moonshot.cn/*",
         "https://www.kimi.com/*",
         "https://chat.minimax.io/*",
+        "https://agent.minimax.io/*",
         "https://www.minimax.io/*",
         "https://tongyi.aliyun.com/*",
+        "https://www.qianwen.com/*",
         "https://chatglm.cn/*",
         "https://chat.deepseek.com/*",
         "https://www.deepseek.com/*"
