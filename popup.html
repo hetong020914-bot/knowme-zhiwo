@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KnowMe-知我</title>
+    <style>
+      :root {
+        --primary: #534ab7;
+        --primary-soft: #f3f1ff;
+        --text: #1f2340;
+        --muted: #6b6f86;
+        --border: #e5e7f2;
+        --surface: #ffffff;
+        --danger: #d94b6a;
+        --warning: #b07d00;
+        --success: #24a06b;
+        --shadow: 0 14px 34px rgba(83, 74, 183, 0.15);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        width: 360px;
+        max-height: 560px;
+        overflow-y: auto;
+        font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top right, rgba(83, 74, 183, 0.22), transparent 34%),
+          linear-gradient(180deg, #f8f7ff 0%, #ffffff 38%);
+      }
+
+      .app {
+        padding: 16px;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #534ab7 0%, #6a61d1 100%);
+        color: #fff;
+        border-radius: 18px;
+        padding: 16px;
+        box-shadow: var(--shadow);
+      }
+
+      .brand h1 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      .brand span,
+      .site-badge,
+      .hint,
+      .status,
+      .subtle {
+        font-size: 12px;
+      }
+
+      .site-badge {
+        margin-top: 12px;
+        display: inline-flex;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.16);
+      }
+
+      .tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin: 16px 0;
+      }
+
+      .tab-btn,
+      .scene-button,
+      .quick-tag,
+      .platform-tab,
+      button {
+        border: none;
+        cursor: pointer;
+      }
+
+      .tab-btn {
+        border-radius: 12px;
+        padding: 10px 12px;
+        background: #efedff;
+        color: #534ab7;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .tab-btn.active,
+      .scene-button.active,
+      .quick-tag.active,
+      .platform-tab.active {
+        background: #534ab7;
+        color: #fff;
+      }
+
+      .panel {
+        display: none;
+      }
+
+      .panel.active {
+        display: block;
+      }
+
+      .form-card,
+      .card,
+      .backup-box,
+      .workspace-box {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 10px 24px rgba(31, 35, 64, 0.06);
+      }
+
+      .form-card,
+      .backup-box,
+      .workspace-box {
+        padding: 14px;
+        margin-bottom: 14px;
+      }
+
+      .section-title {
+        margin: 0 0 12px;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .field {
+        margin-bottom: 10px;
+      }
+
+      .field label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      input[type="text"],
+      textarea,
+      select {
+        width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-size: 13px;
+        color: var(--text);
+        background: #fff;
+        outline: none;
+        font-family: inherit;
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 84px;
+      }
+
+      .actions,
+      .row-actions,
+      .toolbar,
+      .scene-switch,
+      .quick-tags,
+      .platform-tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-size: 13px;
+      }
+
+      .btn-primary {
+        background: #534ab7;
+        color: #fff;
+      }
+
+      .btn-secondary {
+        background: #efedff;
+        color: #534ab7;
+      }
+
+      .btn-danger {
+        background: #fff1f4;
+        color: var(--danger);
+      }
+
+      .btn-ghost {
+        background: #f7f7fc;
+        color: var(--text);
+      }
+
+      .list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .card {
+        padding: 14px;
+      }
+
+      .card-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .card-title {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .tag {
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: var(--primary-soft);
+        color: #534ab7;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .card-content {
+        margin: 10px 0 12px;
+        font-size: 12px;
+        line-height: 1.6;
+        color: #444a66;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .empty {
+        padding: 24px 16px;
+        text-align: center;
+        font-size: 12px;
+        color: var(--muted);
+        background: rgba(255, 255, 255, 0.75);
+        border: 1px dashed #d9dbec;
+        border-radius: 16px;
+      }
+
+      .scene-button,
+      .quick-tag,
+      .platform-tab {
+        background: var(--primary-soft);
+        color: #534ab7;
+        border: 1px solid transparent;
+        padding: 7px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+      }
+
+      .quick-tags {
+        margin-top: 8px;
+        margin-bottom: 12px;
+      }
+
+      .single-output-box {
+        min-height: 158px;
+      }
+
+      .output-box {
+        min-height: 140px;
+        background: #f8f8ff;
+      }
+
+      .hint,
+      .subtle,
+      .status {
+        color: var(--muted);
+      }
+
+      .hint.warning {
+        color: var(--warning);
+      }
+
+      .status.success {
+        color: var(--success);
+      }
+
+      .status.error {
+        color: var(--danger);
+      }
+
+      .compact-select {
+        flex: 1;
+        min-width: 120px;
+      }
+
+      .category-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+        align-items: end;
+      }
+
+      .file-input {
+        display: none;
+      }
+
+      .custom-input-wrap {
+        display: none;
+        width: 100%;
+      }
+
+      .custom-input-wrap.visible {
+        display: block;
+      }
+
+      .mini-delete {
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: #fff1f4;
+        color: var(--danger);
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="header">
+        <div class="brand">
+          <h1>KnowMe-知我</h1>
+          <span>每次对话从“认识你”开始</span>
+        </div>
+        <div class="site-badge" id="currentSite">当前网站：识别中...</div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="cards">背景卡片</button>
+        <button class="tab-btn" data-tab="workspace">整合工作台</button>
+      </div>
+
+      <section class="panel active" id="cardsPanel">
+        <div class="form-card">
+          <h2 class="section-title" id="formTitle">新建背景卡片</h2>
+
+          <div class="field">
+            <label for="cardTitle">标题</label>
+            <input id="cardTitle" type="text" placeholder="例如：项目背景 / 论文要求" />
+          </div>
+
+          <div class="field">
+            <label for="cardContent">正文内容</label>
+            <textarea id="cardContent" placeholder="输入要注入到 AI 对话框中的背景信息"></textarea>
+            <div class="hint" id="cardLengthHint">当前 0 字</div>
+          </div>
+
+          <div class="field">
+            <div class="category-row">
+              <div>
+                <label for="cardCategory">分类标签</label>
+                <select id="cardCategory">
+                  <option value="工作">工作</option>
+                  <option value="学术">学术</option>
+                  <option value="其他">其他</option>
+                </select>
+              </div>
+              <div>
+                <label for="cardFilter">列表筛选</label>
+                <select id="cardFilter" class="compact-select">
+                  <option value="全部">全部分类</option>
+                  <option value="工作">工作</option>
+                  <option value="学术">学术</option>
+                  <option value="其他">其他</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn-primary" id="saveCardBtn">保存卡片</button>
+            <button class="btn-secondary" id="cancelEditBtn" style="display: none;">取消编辑</button>
+          </div>
+          <div class="subtle" style="margin-top: 8px;">注入方式：追加到当前输入内容末尾</div>
+        </div>
+
+        <div class="list" id="cardsList"></div>
+
+        <div class="backup-box">
+          <h2 class="section-title">数据备份</h2>
+          <div class="actions">
+            <button class="btn-ghost" id="exportCardsBtn">导出卡片</button>
+            <button class="btn-ghost" id="importCardsBtn">导入卡片</button>
+            <input class="file-input" id="importCardsInput" type="file" accept="application/json,.json" />
+          </div>
+          <div class="subtle" style="margin-top: 8px;">导出为JSON文件，可用于备份或换设备恢复</div>
+        </div>
+      </section>
+
+      <section class="panel" id="workspacePanel">
+        <div class="workspace-box">
+          <h2 class="section-title">整合工作台</h2>
+
+          <div class="field">
+            <label>平台切换</label>
+            <div class="platform-tabs" id="workspacePlatformTabs"></div>
+          </div>
+
+          <div class="field">
+            <label id="activePlatformLabel" for="activePlatformOutput">当前平台输出</label>
+            <textarea id="activePlatformOutput" class="single-output-box" placeholder="这里显示当前平台的输出内容"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="integrationNeed">整合需求</label>
+            <textarea id="integrationNeed" placeholder="这里填写你自己的补充要求，这部分不会被快捷标签覆盖"></textarea>
+          </div>
+
+          <div class="field">
+            <label>快捷标签</label>
+            <div class="scene-switch" id="workspaceSceneSwitch"></div>
+          </div>
+
+          <div class="quick-tags" id="workspaceQuickTags"></div>
+          <div class="custom-input-wrap" id="customTagInputWrap">
+            <input id="customTagInput" type="text" placeholder="输入自定义标签，按回车保存" />
+          </div>
+          <div class="subtle">快捷标签仅作用于下方提示词生成，不会改动上面的整合需求输入框。国产AI请手动复制粘贴回复到当前平台输出框。</div>
+
+          <div class="actions">
+            <button class="btn-primary" id="generatePromptBtn">生成提示词</button>
+            <button class="btn-secondary" id="copyPromptBtn">复制提示词</button>
+            <button class="btn-danger" id="clearWorkspaceBtn">清空工作台</button>
+          </div>
+
+          <div class="field" style="margin-top: 12px;">
+            <label for="generatedPrompt">生成结果</label>
+            <textarea id="generatedPrompt" class="output-box" readonly placeholder="点击“生成提示词”后，这里会出现完整提示词"></textarea>
+          </div>
+
+          <div class="status" id="workspaceStatus"></div>
+        </div>
+      </section>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

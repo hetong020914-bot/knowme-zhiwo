@@ -1,0 +1,65 @@
+{
+  "manifest_version": 3,
+  "name": "KnowMe-知我",
+  "version": "1.2.0",
+  "description": "KnowMe-知我：每次对话从“认识你”开始，在多平台 AI 对话中管理背景卡片与整合上下文。",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": ["storage", "tabs", "sidePanel"],
+  "host_permissions": [
+    "https://claude.ai/*",
+    "https://chat.openai.com/*",
+    "https://chatgpt.com/*",
+    "https://gemini.google.com/*",
+    "https://www.doubao.com/*",
+    "https://doubao.com/*",
+    "https://kimi.moonshot.cn/*",
+    "https://www.kimi.com/*",
+    "https://chat.minimax.io/*",
+    "https://www.minimax.io/*",
+    "https://tongyi.aliyun.com/*",
+    "https://chatglm.cn/*",
+    "https://chat.deepseek.com/*",
+    "https://www.deepseek.com/*"
+  ],
+  "action": {
+    "default_title": "KnowMe-知我",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png"
+    }
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://claude.ai/*",
+        "https://chat.openai.com/*",
+        "https://chatgpt.com/*",
+        "https://gemini.google.com/*",
+        "https://www.doubao.com/*",
+        "https://doubao.com/*",
+        "https://kimi.moonshot.cn/*",
+        "https://www.kimi.com/*",
+        "https://chat.minimax.io/*",
+        "https://www.minimax.io/*",
+        "https://tongyi.aliyun.com/*",
+        "https://chatglm.cn/*",
+        "https://chat.deepseek.com/*",
+        "https://www.deepseek.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
