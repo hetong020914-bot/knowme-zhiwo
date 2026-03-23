@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KnowMe · 让 AI 先认识你</title>
+    <meta
+      name="description"
+      content="KnowMe 是一个 Chrome 浏览器插件，用背景卡片和整合工作台，让每次 AI 对话从认识你开始。"
+    />
+    <meta property="og:title" content="KnowMe · 知我" />
+    <meta
+      property="og:description"
+      content="让每次对话，从认识你开始。用背景卡片和整合工作台，让 AI 更快进入你的语境。"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="./icons/icon128.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="128" />
+    <meta property="og:image:height" content="128" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="KnowMe · 知我" />
+    <meta
+      name="twitter:description"
+      content="让每次对话，从认识你开始。用背景卡片和整合工作台，让 AI 更快进入你的语境。"
+    />
+    <meta name="twitter:image" content="./icons/icon128.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="./icons/icon16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon32.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="./icons/icon48.png" />
+    <link rel="icon" type="image/png" sizes="128x128" href="./icons/icon128.png" />
+    <link rel="apple-touch-icon" href="./icons/icon128.png" />
+    <style>
+      :root {
+        --bg: #f7f4ee;
+        --bg-deep: #efe7db;
+        --ink: #14131a;
+        --text: #262433;
+        --muted: #6e687c;
+        --line: rgba(38, 36, 51, 0.12);
+        --surface: rgba(255, 255, 255, 0.72);
+        --surface-strong: rgba(255, 255, 255, 0.9);
+        --brand: #4f4ab6;
+        --brand-deep: #2d2c99;
+        --gold: #c58635;
+        --hero-shadow: 0 28px 80px rgba(21, 19, 34, 0.12);
+        --panel-shadow: 0 20px 60px rgba(79, 74, 182, 0.18);
+        --max-width: 1200px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(197, 134, 53, 0.22), transparent 30%),
+          radial-gradient(circle at 80% 12%, rgba(79, 74, 182, 0.16), transparent 26%),
+          linear-gradient(180deg, #fcfaf6 0%, #f7f4ee 28%, #f0ebe2 100%);
+        font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.35;
+        background-image:
+          linear-gradient(rgba(20, 19, 26, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(20, 19, 26, 0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
+        mask-image: radial-gradient(circle at center, black 45%, transparent 90%);
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      img {
+        display: block;
+        max-width: 100%;
+      }
+
+      .page-shell {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .page-shell::before,
+      .page-shell::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        filter: blur(18px);
+        opacity: 0.7;
+        pointer-events: none;
+      }
+
+      .page-shell::before {
+        width: 320px;
+        height: 320px;
+        top: 170px;
+        right: -80px;
+        background: rgba(79, 74, 182, 0.12);
+      }
+
+      .page-shell::after {
+        width: 260px;
+        height: 260px;
+        left: -90px;
+        top: 880px;
+        background: rgba(197, 134, 53, 0.12);
+      }
+
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: blur(18px);
+        background: rgba(247, 244, 238, 0.64);
+        border-bottom: 1px solid rgba(38, 36, 51, 0.06);
+      }
+
+      .header-inner,
+      .section-inner {
+        width: min(calc(100% - 40px), var(--max-width));
+        margin: 0 auto;
+      }
+
+      .header-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 18px 0;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .brand-mark {
+        width: 42px;
+        height: 42px;
+        padding: 7px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.82);
+        box-shadow: 0 12px 28px rgba(45, 44, 153, 0.12);
+      }
+
+      .brand-copy strong {
+        display: block;
+        font-size: 15px;
+        letter-spacing: 0.08em;
+      }
+
+      .brand-copy span {
+        display: block;
+        margin-top: 3px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .nav {
+        display: inline-flex;
+        align-items: center;
+        gap: 18px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      .nav a:hover {
+        color: var(--ink);
+      }
+
+      .hero {
+        position: relative;
+        min-height: calc(100svh - 79px);
+        display: flex;
+        align-items: center;
+        padding: 46px 0 78px;
+      }
+
+      .hero-inner {
+        width: min(calc(100% - 40px), var(--max-width));
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: minmax(0, 1.03fr) minmax(0, 0.97fr);
+        gap: 42px;
+        align-items: center;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid rgba(38, 36, 51, 0.08);
+        color: var(--muted);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--gold), var(--brand));
+      }
+
+      .hero-copy h1,
+      .section-heading h2,
+      .quote strong,
+      .cta-copy h2 {
+        margin: 0;
+        font-family: "Songti SC", "STSong", "Noto Serif SC", serif;
+        color: var(--ink);
+        font-weight: 700;
+        letter-spacing: -0.04em;
+      }
+
+      .hero-copy h1 {
+        margin-top: 22px;
+        font-size: clamp(3.5rem, 8vw, 6.6rem);
+        line-height: 0.95;
+      }
+
+      .hero-copy h1 span {
+        display: block;
+        font-size: clamp(2rem, 4vw, 3.05rem);
+        line-height: 1.08;
+        letter-spacing: -0.03em;
+        margin-top: 18px;
+      }
+
+      .hero-copy p {
+        width: min(100%, 520px);
+        margin: 24px 0 0;
+        font-size: 18px;
+        line-height: 1.8;
+        color: rgba(38, 36, 51, 0.82);
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-top: 34px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 52px;
+        padding: 0 22px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        font-size: 14px;
+        font-weight: 600;
+        transition:
+          transform 220ms ease,
+          box-shadow 220ms ease,
+          border-color 220ms ease,
+          background-color 220ms ease;
+      }
+
+      .button:hover {
+        transform: translateY(-2px);
+      }
+
+      .button-primary {
+        color: #fff;
+        background: linear-gradient(135deg, #5d58ca, #2d2c99);
+        box-shadow: 0 16px 32px rgba(79, 74, 182, 0.28);
+      }
+
+      .button-secondary {
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.7);
+        border-color: rgba(38, 36, 51, 0.1);
+      }
+
+      .hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px 20px;
+        margin-top: 32px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .hero-meta span::before {
+        content: "•";
+        margin-right: 8px;
+        color: var(--gold);
+      }
+
+      .hero-visual {
+        position: relative;
+        min-height: 640px;
+      }
+
+      .hero-aura,
+      .hero-ring {
+        position: absolute;
+        border-radius: 999px;
+      }
+
+      .hero-aura {
+        inset: 72px 40px 72px 40px;
+        background:
+          radial-gradient(circle at 30% 35%, rgba(197, 134, 53, 0.3), transparent 38%),
+          radial-gradient(circle at 68% 36%, rgba(79, 74, 182, 0.22), transparent 42%),
+          linear-gradient(160deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.22));
+        filter: blur(4px);
+        animation: drift 10s ease-in-out infinite;
+      }
+
+      .hero-ring {
+        inset: 22px 12px;
+        border: 1px solid rgba(79, 74, 182, 0.16);
+        transform: rotate(-8deg);
+      }
+
+      .memory-stage {
+        position: absolute;
+        inset: 64px 0 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .browser {
+        position: relative;
+        width: min(100%, 560px);
+        padding: 18px;
+        border-radius: 30px;
+        background: rgba(255, 255, 255, 0.66);
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        box-shadow: var(--hero-shadow);
+        backdrop-filter: blur(16px);
+        transform: rotate(-6deg);
+      }
+
+      .browser-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .dots {
+        display: inline-flex;
+        gap: 6px;
+      }
+
+      .dots span {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(38, 36, 51, 0.16);
+      }
+
+      .url-bar {
+        flex: 1;
+        min-height: 36px;
+        display: flex;
+        align-items: center;
+        padding: 0 14px;
+        border-radius: 999px;
+        color: rgba(38, 36, 51, 0.42);
+        background: rgba(245, 242, 250, 0.95);
+        font-size: 12px;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: 188px minmax(0, 1fr);
+        gap: 18px;
+      }
+
+      .sidebar,
+      .chat-pane {
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.84);
+        border: 1px solid rgba(38, 36, 51, 0.07);
+      }
+
+      .sidebar {
+        padding: 18px 14px;
+      }
+
+      .sidebar h3,
+      .chat-pane h3,
+      .section-kicker,
+      .mini-label {
+        margin: 0;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .memory-card {
+        margin-top: 12px;
+        padding: 14px;
+        border-radius: 18px;
+        background: linear-gradient(180deg, rgba(79, 74, 182, 0.12), rgba(79, 74, 182, 0.03));
+        border: 1px solid rgba(79, 74, 182, 0.12);
+      }
+
+      .memory-card strong {
+        display: block;
+        font-size: 15px;
+        color: var(--ink);
+      }
+
+      .memory-card p,
+      .chat-bubble p,
+      .feature-copy p,
+      .workflow-note p,
+      .quote p,
+      .cta-copy p {
+        margin: 0;
+        line-height: 1.75;
+        color: rgba(38, 36, 51, 0.76);
+      }
+
+      .memory-card p {
+        margin-top: 8px;
+        font-size: 12px;
+      }
+
+      .memory-chip-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .memory-chip {
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.82);
+        border: 1px solid rgba(38, 36, 51, 0.08);
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .chat-pane {
+        padding: 18px;
+      }
+
+      .chat-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .chat-tabs {
+        display: inline-flex;
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .chat-tab {
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        color: var(--muted);
+        background: rgba(245, 242, 250, 0.95);
+      }
+
+      .chat-tab.active {
+        color: #fff;
+        background: linear-gradient(135deg, #5d58ca, #2d2c99);
+      }
+
+      .chat-bubble {
+        margin-top: 14px;
+        padding: 16px;
+        border-radius: 20px;
+      }
+
+      .chat-bubble.user {
+        background: rgba(245, 242, 250, 0.94);
+      }
+
+      .chat-bubble.ai {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(240, 236, 250, 0.7));
+        border: 1px solid rgba(79, 74, 182, 0.1);
+      }
+
+      .chat-bubble strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 13px;
+        color: var(--ink);
+      }
+
+      .floating-note {
+        position: absolute;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(38, 36, 51, 0.08);
+        box-shadow: var(--panel-shadow);
+        backdrop-filter: blur(12px);
+      }
+
+      .floating-note strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 14px;
+        color: var(--ink);
+      }
+
+      .floating-note p {
+        margin: 0;
+        font-size: 12px;
+        line-height: 1.6;
+        color: var(--muted);
+      }
+
+      .note-one {
+        left: 8px;
+        bottom: 86px;
+        width: 188px;
+        animation: floaty 5s ease-in-out infinite;
+      }
+
+      .note-two {
+        right: -8px;
+        top: 128px;
+        width: 180px;
+        animation: floaty 6s ease-in-out infinite reverse;
+      }
+
+      .section {
+        position: relative;
+        padding: 110px 0;
+      }
+
+      .section-heading {
+        display: grid;
+        grid-template-columns: 180px minmax(0, 1fr);
+        gap: 26px;
+        align-items: start;
+        margin-bottom: 44px;
+      }
+
+      .section-kicker {
+        padding-top: 12px;
+      }
+
+      .section-heading h2 {
+        font-size: clamp(2.2rem, 4vw, 4rem);
+        line-height: 1.05;
+      }
+
+      .section-heading p {
+        max-width: 700px;
+        margin: 18px 0 0;
+        color: rgba(38, 36, 51, 0.76);
+        font-size: 18px;
+        line-height: 1.75;
+      }
+
+      .feature-list {
+        display: grid;
+        gap: 26px;
+      }
+
+      .feature-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(280px, 460px);
+        gap: 26px;
+        align-items: stretch;
+        padding: 28px 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .feature-row:last-child {
+        border-bottom: 1px solid var(--line);
+      }
+
+      .feature-copy {
+        max-width: 560px;
+      }
+
+      .feature-copy span {
+        display: inline-block;
+        margin-bottom: 14px;
+        color: var(--gold);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+      }
+
+      .feature-copy h3,
+      .workflow-note h3 {
+        margin: 0;
+        color: var(--ink);
+        font-size: clamp(1.6rem, 2.4vw, 2.3rem);
+        line-height: 1.18;
+      }
+
+      .feature-copy p {
+        margin-top: 14px;
+        font-size: 16px;
+      }
+
+      .feature-visual {
+        position: relative;
+        padding: 22px;
+        border-radius: 28px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(255, 255, 255, 0.58)),
+          linear-gradient(135deg, rgba(79, 74, 182, 0.08), rgba(197, 134, 53, 0.08));
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        box-shadow: var(--hero-shadow);
+      }
+
+      .mini-stack {
+        display: grid;
+        gap: 12px;
+      }
+
+      .mini-panel {
+        padding: 15px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.86);
+        border: 1px solid rgba(38, 36, 51, 0.08);
+      }
+
+      .mini-panel strong {
+        display: block;
+        margin-top: 8px;
+        font-size: 15px;
+        color: var(--ink);
+      }
+
+      .mini-panel p {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      .workflow-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 24px;
+      }
+
+      .workflow-note {
+        min-height: 320px;
+        padding: 28px;
+        border-radius: 30px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.62)),
+          linear-gradient(135deg, rgba(79, 74, 182, 0.06), rgba(197, 134, 53, 0.08));
+        border: 1px solid rgba(255, 255, 255, 0.66);
+        box-shadow: var(--hero-shadow);
+      }
+
+      .workflow-step {
+        width: 42px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(79, 74, 182, 0.1);
+        color: var(--brand-deep);
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .workflow-note h3 {
+        margin-top: 20px;
+      }
+
+      .workflow-note p {
+        margin-top: 14px;
+        font-size: 15px;
+      }
+
+      .platform-band {
+        padding: 32px;
+        border-radius: 32px;
+        background: rgba(20, 19, 26, 0.96);
+        color: rgba(255, 255, 255, 0.88);
+        box-shadow: 0 30px 70px rgba(20, 19, 26, 0.22);
+      }
+
+      .platform-band strong {
+        display: block;
+        font-size: clamp(1.8rem, 3vw, 3rem);
+        line-height: 1.15;
+      }
+
+      .platform-band p {
+        margin: 12px 0 0;
+        max-width: 720px;
+        color: rgba(255, 255, 255, 0.72);
+        line-height: 1.8;
+      }
+
+      .platform-ticker {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 26px;
+      }
+
+      .platform-ticker span {
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 13px;
+      }
+
+      .install-shell {
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+        gap: 28px;
+        align-items: stretch;
+      }
+
+      .install-intro,
+      .install-steps {
+        padding: 32px;
+        border-radius: 32px;
+        background: rgba(255, 255, 255, 0.76);
+        border: 1px solid rgba(255, 255, 255, 0.72);
+        box-shadow: var(--hero-shadow);
+      }
+
+      .install-intro strong {
+        display: block;
+        font-size: clamp(1.9rem, 3.2vw, 3.2rem);
+        line-height: 1.12;
+        color: var(--ink);
+        font-family: "Songti SC", "STSong", "Noto Serif SC", serif;
+        letter-spacing: -0.04em;
+        text-wrap: balance;
+      }
+
+      .install-intro p,
+      .install-step p {
+        margin: 16px 0 0;
+        color: rgba(38, 36, 51, 0.76);
+        line-height: 1.8;
+        font-size: 15px;
+      }
+
+      .install-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 24px;
+      }
+
+      .install-meta span,
+      .install-code {
+        display: inline-flex;
+        align-items: center;
+        min-height: 38px;
+        padding: 0 14px;
+        border-radius: 999px;
+        background: rgba(245, 242, 250, 0.96);
+        border: 1px solid rgba(38, 36, 51, 0.08);
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .download-links {
+        display: grid;
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      .download-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 16px 18px;
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.84);
+        border: 1px solid rgba(38, 36, 51, 0.08);
+        transition:
+          transform 220ms ease,
+          box-shadow 220ms ease,
+          border-color 220ms ease;
+      }
+
+      .download-link:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 36px rgba(21, 19, 34, 0.08);
+        border-color: rgba(79, 74, 182, 0.18);
+      }
+
+      .download-link strong {
+        display: block;
+        font-size: 15px;
+        color: var(--ink);
+      }
+
+      .download-link p {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      .download-arrow {
+        flex: 0 0 auto;
+        color: var(--brand-deep);
+        font-size: 18px;
+      }
+
+      .install-steps {
+        display: grid;
+        gap: 14px;
+      }
+
+      .install-step {
+        padding: 18px 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .install-step:first-child {
+        border-top: none;
+        padding-top: 0;
+      }
+
+      .install-step-head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .install-badge {
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(79, 74, 182, 0.1);
+        color: var(--brand-deep);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .install-step strong {
+        font-size: 16px;
+        color: var(--ink);
+      }
+
+      .trust-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 28px;
+        align-items: stretch;
+      }
+
+      .quote,
+      .trust-points {
+        padding: 30px;
+        border-radius: 30px;
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        box-shadow: var(--hero-shadow);
+      }
+
+      .quote strong {
+        display: block;
+        font-size: clamp(1.8rem, 3vw, 3rem);
+        line-height: 1.16;
+      }
+
+      .quote p {
+        margin-top: 18px;
+        font-size: 16px;
+      }
+
+      .trust-points ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .trust-points li {
+        padding: 16px 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .trust-points li:first-child {
+        border-top: none;
+        padding-top: 0;
+      }
+
+      .trust-points strong {
+        display: block;
+        font-size: 15px;
+        color: var(--ink);
+      }
+
+      .trust-points p {
+        margin: 8px 0 0;
+        color: var(--muted);
+        line-height: 1.75;
+        font-size: 14px;
+      }
+
+      .cta-block {
+        position: relative;
+        padding: 38px;
+        border-radius: 36px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 18% 18%, rgba(197, 134, 53, 0.24), transparent 28%),
+          radial-gradient(circle at 82% 22%, rgba(79, 74, 182, 0.24), transparent 30%),
+          linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(247, 243, 255, 0.78));
+        border: 1px solid rgba(255, 255, 255, 0.74);
+        box-shadow: var(--hero-shadow);
+      }
+
+      .cta-copy {
+        max-width: 700px;
+      }
+
+      .cta-copy h2 {
+        font-size: clamp(2.2rem, 4vw, 4.4rem);
+        line-height: 1;
+      }
+
+      .cta-copy p {
+        margin-top: 18px;
+        font-size: 18px;
+      }
+
+      .footer {
+        padding: 20px 0 46px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .fade-in {
+        opacity: 0;
+        transform: translateY(24px);
+        transition:
+          opacity 700ms ease,
+          transform 700ms ease;
+      }
+
+      .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @keyframes drift {
+        0%,
+        100% {
+          transform: translate3d(0, 0, 0);
+        }
+
+        50% {
+          transform: translate3d(0, -16px, 0) scale(1.02);
+        }
+      }
+
+      @keyframes floaty {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      @media (max-width: 1040px) {
+        .hero-inner,
+        .feature-row,
+        .workflow-grid,
+        .install-shell,
+        .trust-grid,
+        .section-heading {
+          grid-template-columns: 1fr;
+        }
+
+        .hero {
+          min-height: auto;
+          padding-top: 40px;
+        }
+
+        .hero-visual {
+          min-height: 560px;
+        }
+
+        .section-heading {
+          gap: 10px;
+        }
+
+        .section-kicker {
+          padding-top: 0;
+        }
+      }
+
+      @media (max-width: 760px) {
+        .header-inner {
+          padding: 14px 0;
+        }
+
+        .nav {
+          display: none;
+        }
+
+        .hero-copy h1 {
+          font-size: clamp(2.8rem, 14vw, 4.4rem);
+        }
+
+        .hero-copy h1 span {
+          font-size: clamp(1.6rem, 7vw, 2.4rem);
+        }
+
+        .hero-copy p,
+        .section-heading p,
+        .cta-copy p {
+          font-size: 16px;
+        }
+
+        .hero-visual {
+          min-height: 520px;
+        }
+
+        .browser {
+          padding: 14px;
+          transform: none;
+        }
+
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        .floating-note {
+          display: none;
+        }
+
+        .section {
+          padding: 84px 0;
+        }
+
+        .platform-band,
+        .install-intro,
+        .install-steps,
+        .quote,
+        .trust-points,
+        .cta-block,
+        .workflow-note {
+          padding: 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <div class="header-inner">
+          <a class="brand" href="#top">
+            <img class="brand-mark" src="./icons/icon128.png" alt="KnowMe Logo" />
+            <div class="brand-copy">
+              <strong>KNOWME · 知我</strong>
+              <span>让每次对话，从认识你开始</span>
+            </div>
+          </a>
+          <nav class="nav">
+            <a href="#features">能力</a>
+            <a href="#workflow">流程</a>
+            <a href="#platforms">平台</a>
+            <a href="#install">安装</a>
+            <a href="#trust">隐私</a>
+          </nav>
+        </div>
+      </header>
+
+      <main id="top">
+        <section class="hero">
+          <div class="hero-inner">
+            <div class="hero-copy fade-in">
+              <div class="eyebrow">Chrome Extension for AI Workflow</div>
+              <h1>
+                KnowMe
+                <span>每次发问前，先把“你是谁”交给插件记住。</span>
+              </h1>
+              <p>
+                不再重复介绍身份、项目背景、写作偏好和任务语境。把你的长期上下文存成可注入的背景卡片，让
+                ChatGPT、Claude、Gemini 和更多 AI 在回答前先认识你。
+              </p>
+              <div class="hero-actions">
+                <a class="button button-primary" href="#install">立即安装</a>
+                <a class="button button-secondary" href="#workflow">查看使用方式</a>
+                <a class="button button-secondary" href="#platforms">查看支持平台</a>
+              </div>
+              <div class="hero-meta">
+                <span>背景卡片一键注入</span>
+                <span>多平台结果整合</span>
+                <span>本地存储，不经过服务器</span>
+              </div>
+            </div>
+
+            <div class="hero-visual fade-in">
+              <div class="hero-aura"></div>
+              <div class="hero-ring"></div>
+              <div class="memory-stage">
+                <div class="browser">
+                  <div class="browser-top">
+                    <div class="dots"><span></span><span></span><span></span></div>
+                    <div class="url-bar">chatgpt.com / claude.ai / gemini.google.com</div>
+                  </div>
+                  <div class="workspace">
+                    <div class="sidebar">
+                      <h3>Memory Cards</h3>
+                      <div class="memory-card">
+                        <strong>项目背景</strong>
+                        <p>我在做 AI 产品内容运营，常写方案、汇报、PRD 和功能文案。</p>
+                      </div>
+                      <div class="memory-card">
+                        <strong>写作偏好</strong>
+                        <p>结论前置，结构清晰，少空话，尽量给可执行建议。</p>
+                      </div>
+                      <div class="memory-chip-list">
+                        <span class="memory-chip">工作</span>
+                        <span class="memory-chip">学术</span>
+                        <span class="memory-chip">常用提示词</span>
+                      </div>
+                    </div>
+
+                    <div class="chat-pane">
+                      <div class="chat-head">
+                        <h3>Workspace</h3>
+                        <span class="mini-label">当前平台自动识别</span>
+                      </div>
+                      <div class="chat-tabs">
+                        <span class="chat-tab active">ChatGPT</span>
+                        <span class="chat-tab">Claude</span>
+                        <span class="chat-tab">Gemini</span>
+                      </div>
+                      <div class="chat-bubble user">
+                        <strong>已注入背景</strong>
+                        <p>你将作为我的协作助手，默认按中文回答，输出优先给方案与执行建议。</p>
+                      </div>
+                      <div class="chat-bubble ai">
+                        <strong>AI 回答会更快进入正题</strong>
+                        <p>不需要再次解释你的角色、目标、对象和偏好，回答直接建立在你的上下文上。</p>
+                      </div>
+                      <div class="chat-bubble ai">
+                        <strong>整合工作台</strong>
+                        <p>把多个平台的回答放在一起，生成一条新的整合提示词，继续推进最终结果。</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="floating-note note-one">
+                <strong>像记忆层，而不是模板库</strong>
+                <p>卡片不是一次性提示词，而是你长期稳定的身份、项目和表达方式。</p>
+              </div>
+
+              <div class="floating-note note-two">
+                <strong>跨平台工作流</strong>
+                <p>同一套背景信息，可复用到你常用的多个 AI 平台。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="features">
+          <div class="section-inner">
+            <div class="section-heading fade-in">
+              <div class="section-kicker">Core Value</div>
+              <div>
+                <h2>它不是让你写更多提示词<br />而是替你保留长期上下文</h2>
+                <p>
+                  参考优秀产品页的节奏，我们把重点压回到一个核心感受上：每次打开 AI，不必从零重新介绍自己。KnowMe
+                  让交互从“铺垫”跳到“推进”。
+                </p>
+              </div>
+            </div>
+
+            <div class="feature-list">
+              <article class="feature-row fade-in">
+                <div class="feature-copy">
+                  <span>01 / 背景卡片</span>
+                  <h3>把身份、项目、偏好存成可以长期复用的记忆片段。</h3>
+                  <p>
+                    你可以把工作语境、用户群体、写作风格、常做任务，甚至常用提示词单独保存。下次面对任何 AI
+                    输入框，一键注入，不再手动复述。
+                  </p>
+                </div>
+                <div class="feature-visual">
+                  <div class="mini-stack">
+                    <div class="mini-panel">
+                      <div class="mini-label">Card A</div>
+                      <strong>我是内容运营，负责公众号和活动页文案</strong>
+                      <p>目标用户是职场女性，领导偏好结论前置、表达克制的方案风格。</p>
+                    </div>
+                    <div class="mini-panel">
+                      <div class="mini-label">Card B</div>
+                      <strong>当前项目：AI 浏览器插件官网</strong>
+                      <p>希望页面有产品感，不堆卡片，不要像普通 SaaS 模板。</p>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="feature-row fade-in">
+                <div class="feature-copy">
+                  <span>02 / 一键注入</span>
+                  <h3>识别当前平台，把你需要的背景直接送进对话框。</h3>
+                  <p>
+                    插件会识别当前网站，支持 Claude、ChatGPT、Gemini、豆包、Kimi、千问、智谱清言、DeepSeek
+                    等多个平台。你点一下，AI 就从理解你开始。
+                  </p>
+                </div>
+                <div class="feature-visual">
+                  <div class="mini-stack">
+                    <div class="mini-panel">
+                      <div class="mini-label">Active Site</div>
+                      <strong>当前网站：ChatGPT</strong>
+                      <p>点击“注入”后，背景会追加到当前输入内容末尾，立刻参与本次对话。</p>
+                    </div>
+                    <div class="mini-panel">
+                      <div class="mini-label">Supported</div>
+                      <strong>Claude / ChatGPT / Gemini / 豆包 / Kimi / DeepSeek</strong>
+                      <p>同一张卡片，不用为每个平台重复维护。</p>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="feature-row fade-in">
+                <div class="feature-copy">
+                  <span>03 / 整合工作台</span>
+                  <h3>把不同 AI 的答案收拢成一个更好的下一步。</h3>
+                  <p>
+                    当你同时比较多个平台时，工作台会帮你统一整理输入内容，再生成新的整合提示词。不是简单复制粘贴，而是把并行探索变成连续工作流。
+                  </p>
+                </div>
+                <div class="feature-visual">
+                  <div class="mini-stack">
+                    <div class="mini-panel">
+                      <div class="mini-label">Workspace</div>
+                      <strong>输出内容并排收集，整合需求单独补充</strong>
+                      <p>你可以指定“汇报结论”“执行清单”“文献综述”等目标，快速生成下一条高质量提示词。</p>
+                    </div>
+                    <div class="mini-panel">
+                      <div class="mini-label">Result</div>
+                      <strong>从多个答案里提炼一份最终版本</strong>
+                      <p>减少重复劳动，也更适合需要比对观点的内容型和研究型工作。</p>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="workflow">
+          <div class="section-inner">
+            <div class="section-heading fade-in">
+              <div class="section-kicker">Workflow</div>
+              <div>
+                <h2>整个流程应该像呼吸一样顺<br />不该像每次都重新做自我介绍</h2>
+                <p>
+                  页面继续沿用“少而准”的节奏，只保留真正能打动人的三个动作：写入、注入、整合。每一步都服务于同一个目标，让 AI 更快进入你的工作语境。
+                </p>
+              </div>
+            </div>
+
+            <div class="workflow-grid">
+              <article class="workflow-note fade-in">
+                <div class="workflow-step">01</div>
+                <h3>写下你是谁，和你正处在哪个上下文里。</h3>
+                <p>
+                  先创建背景卡片，把角色、项目、对象、表达方式和常见任务说清楚。它可以是长期身份，也可以是一次阶段性项目。
+                </p>
+              </article>
+
+              <article class="workflow-note fade-in">
+                <div class="workflow-step">02</div>
+                <h3>进入任意 AI 页面，一键把背景注入进去。</h3>
+                <p>
+                  打开插件侧边栏或弹窗，选择卡片并注入。AI
+                  立即获得必要上下文，你的提问不再需要一长段前情提要。
+                </p>
+              </article>
+
+              <article class="workflow-note fade-in">
+                <div class="workflow-step">03</div>
+                <h3>如果你用了多个 AI，就在工作台里继续推进结果。</h3>
+                <p>
+                  把各平台输出汇总后，生成一条明确的新提示词，继续要求“合并观点”“提炼结论”“润色发言稿”或“拆成执行步骤”。
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="platforms">
+          <div class="section-inner">
+            <div class="platform-band fade-in">
+              <strong>不是绑定某一个 AI<br />而是把你的工作方式带到每一个 AI 里</strong>
+              <p>
+                当前项目已经覆盖主流对话平台。无论你偏爱哪一个模型，KnowMe
+                做的都是同一件事：帮你把稳定背景带过去，让每个会话都少一点重复，多一点推进。
+              </p>
+              <div class="platform-ticker">
+                <span>Claude</span>
+                <span>ChatGPT</span>
+                <span>Gemini</span>
+                <span>DeepSeek</span>
+                <span>豆包</span>
+                <span>Kimi</span>
+                <span>通义千问</span>
+                <span>智谱清言</span>
+                <span>MiniMax</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="install">
+          <div class="section-inner">
+            <div class="section-heading fade-in">
+              <div class="section-kicker">Install</div>
+              <div>
+                <h2>现在就可以开始使用<br />不用等应用商店上架</h2>
+                <p>
+                  KnowMe 当前适合通过 Chrome 开发者模式安装。整个过程只需要几步，装好以后，打开任意支持的 AI 网页，你就可以直接使用背景卡片和整合工作台。
+                </p>
+              </div>
+            </div>
+
+            <div class="install-shell">
+              <div class="install-intro fade-in">
+                <div class="section-kicker">Quick Start</div>
+                <strong>下载项目<br />开启开发者模式<br />加载插件目录</strong>
+                <p>
+                  如果你是第一次安装浏览器插件，也不用担心。这个流程是标准的 Chrome 本地扩展安装方式，不需要额外注册账号，也不需要连接服务器。
+                </p>
+                <div class="install-meta">
+                  <span>Chrome 浏览器</span>
+                  <span>开发者模式安装</span>
+                  <span>本地可用</span>
+                </div>
+                <div class="download-links">
+                  <a
+                    class="download-link"
+                    href="https://github.com/0xnova-lab/knowme-zhiwo"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <div>
+                      <strong>GitHub 仓库</strong>
+                      <p>查看源码、Star 项目，或者直接从仓库页面下载 ZIP。</p>
+                    </div>
+                    <span class="download-arrow">↗</span>
+                  </a>
+                  <a
+                    class="download-link"
+                    href="https://pan.baidu.com/s/15F6m1Ly8LfWO5AtZuXlNEA?pwd=wrfs"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <div>
+                      <strong>百度网盘下载</strong>
+                      <p>适合想直接获取安装包的用户，提取码：wrfs。</p>
+                    </div>
+                    <span class="download-arrow">↗</span>
+                  </a>
+                </div>
+                <div class="hero-actions">
+                  <a class="button button-primary" href="./README.md">查看完整说明</a>
+                  <a class="button button-secondary" href="chrome://extensions">打开扩展管理页</a>
+                </div>
+              </div>
+
+              <div class="install-steps fade-in">
+                <div class="install-step">
+                  <div class="install-step-head">
+                    <span class="install-badge">01</span>
+                    <strong>下载或克隆项目到本地</strong>
+                  </div>
+                  <p>把整个项目文件夹保存到电脑上，确保你能看到 `manifest.json`、`popup.html`、`sidepanel.html` 这些文件。</p>
+                </div>
+
+                <div class="install-step">
+                  <div class="install-step-head">
+                    <span class="install-badge">02</span>
+                    <strong>打开 Chrome 扩展管理页面</strong>
+                  </div>
+                  <p>在浏览器地址栏输入下面这行，然后回车进入扩展管理页。</p>
+                  <div class="install-code">chrome://extensions</div>
+                </div>
+
+                <div class="install-step">
+                  <div class="install-step-head">
+                    <span class="install-badge">03</span>
+                    <strong>打开右上角的“开发者模式”</strong>
+                  </div>
+                  <p>开启后，页面左上角会出现“加载已解压的扩展程序”按钮，这就是本地安装入口。</p>
+                </div>
+
+                <div class="install-step">
+                  <div class="install-step-head">
+                    <span class="install-badge">04</span>
+                    <strong>选择当前项目文件夹完成加载</strong>
+                  </div>
+                  <p>选中这个项目所在目录后，KnowMe 就会出现在你的扩展列表里。接着打开 ChatGPT、Claude 或其他支持平台即可开始使用。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="trust">
+          <div class="section-inner">
+            <div class="trust-grid">
+              <div class="quote fade-in">
+                <div class="section-kicker">Trust</div>
+                <strong>最重要的不是“更炫”<br />而是你愿不愿意把自己的长期背景放进去</strong>
+                <p>
+                  所以数据默认保存在浏览器本地，不经过服务器。你可以随时导出为
+                  JSON 备份，也能在换设备时再导入回来。这个项目首先应该让人放心，其次才是让人惊艳。
+                </p>
+              </div>
+
+              <div class="trust-points fade-in">
+                <ul>
+                  <li>
+                    <strong>本地存储</strong>
+                    <p>所有卡片内容保存在浏览器本地，不上传，不联网，不额外采集信息。</p>
+                  </li>
+                  <li>
+                    <strong>导入导出</strong>
+                    <p>支持 JSON 备份，迁移设备或重装浏览器之前，可以先把你的卡片安全带走。</p>
+                  </li>
+                  <li>
+                    <strong>开发者模式安装</strong>
+                    <p>现在适合先快速验证产品价值，后续再决定是否扩展成正式官网或上架商店版本。</p>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-inner">
+            <div class="cta-block fade-in">
+              <div class="cta-copy">
+                <div class="section-kicker">Final Call</div>
+                <h2>让每次 AI 对话少一点铺垫<br />多一点真正的开始</h2>
+                <p>
+                  这个页面已经是可直接预览的第一版。如果你愿意，我们下一步可以继续把它做成正式官网版本，比如补上真实截图、下载入口、深色主题和更完整的品牌文案。
+                </p>
+                <div class="hero-actions">
+                  <a class="button button-primary" href="#top">返回首屏</a>
+                  <a class="button button-secondary" href="./README.md">查看项目说明</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <div class="section-inner">KnowMe · 知我 · Built for calmer AI conversations.</div>
+      </footer>
+    </div>
+
+    <script>
+      const revealItems = document.querySelectorAll(".fade-in");
+      const revealObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+              revealObserver.unobserve(entry.target);
+            }
+          });
+        },
+        {
+          threshold: 0.18
+        }
+      );
+
+      revealItems.forEach((item, index) => {
+        item.style.transitionDelay = `${Math.min(index * 70, 280)}ms`;
+        revealObserver.observe(item);
+      });
+    </script>
+  </body>
+</html>
